@@ -1,9 +1,16 @@
 from gl import Renderer, V2
+import shaders
 
 width = 1920
 height = 1080
 
 rend = Renderer(width, height)
+rend.vertexShader = shaders.vertexShader
+rend.fragmentShader = shaders.fragmentShader
+
+triangle = [V2(10,70), V2(50,160), V2(70,80)]
+
+rend.glAddVertices(triangle)
 
 rend.glClearColor(0,0,0)
 rend.glClear()

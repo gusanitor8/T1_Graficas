@@ -1,7 +1,9 @@
 import struct
 from collections import namedtuple
+import numpy as np
 
 V2 = namedtuple('Point2', ['x', 'y'])
+V3 = namedtuple('Point3', ['x', 'y', 'z'])
 
 def char(c):
     return struct.pack('=c', c.encode('ascii'))
@@ -17,6 +19,8 @@ def color(r, g, b):
                   int(g*255),
                   int(r*255)])
 
+TRIANGLES = 3
+
 class Renderer(object):
     def __init__(self, width, height):
         self.width = width
@@ -24,7 +28,58 @@ class Renderer(object):
         self.glClearColor(0,0,0)
         self.glClear()
 
+        self.primitiveType = TRIANGLES
         self.vertexBuffer = []
+
+        self.vertexShader = None
+        self.fragmentShader = None
+
+    def glAddVertices(self, vertices):
+        for vertex in vertices:
+            self.vertexBuffer.append(vertex)
+
+    def glModelMatrix(sel, translate = (0,0,0), scale = (1,1,1)):
+        translation= np.matrix([[1,0,0,translate[0]],
+                                       [0,1,0,translate[1]],
+                                       [0,0,1,translate[2]],
+                                       [0,0,0,1]])
+        
+        scaleMat = np.matrix([[1,0,0,translate[0]],
+                                        [0,1,0,translate[1]],
+                                        [0,0,1,translate[2]],
+                                        [0,0,0,1]])
+        
+        self.Model = translation * scaleMat
+        pass
+
+    def glRender(self):
+        transformedVerts = []
+        for vert in self.vertexBuffer:
+            if self.vertexShader:
+                transformedVerts.append(self.vertexShader(vertex=vert))
+            else:
+                transformedVerts.append(vert)
+
+            primitives = self.glPrimitiveAssembly(transformedVerts)
+
+            for prim in primitives:
+                if self.primitiveType == TRIANGLES:
+                    self.glTriangle(prim[0], prim[1], prim[2])
+    
+    def glPrimitiveAssembly(self,tVerts):
+        primitives = []
+
+        if self.primitiveType == TRIANGLES:
+            triangle = [] 
+            
+            for i in range(0, len(tVerts), 3):
+                triangle = []
+                triangle.append(tVerts[i])
+                triangle.append(tVerts[i+1])
+                triangle.append(tVerts[i+2]) 
+                primitives.append(triangle)
+
+        return primitives
 
     def glClearColor(self, r, g, b):
         self.clearColor = color(r,g,b)
@@ -43,15 +98,6 @@ class Renderer(object):
     def glLine(self, v0, v1, clr = None):
         #Bresenham line algorithm
         #y = mx + b
-        
-        '''
-        m = (v1.y - v0.y) / (v1.x - v0.x)
-        y = v0.y
-        
-        for x in range(v0.x, v1.x + 1):
-            self.glPoint(x, int(y))
-            y += m
-        '''
         
         x0 = int(v0.x)
         x1 = int(v1.x)
