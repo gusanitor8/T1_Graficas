@@ -1,6 +1,10 @@
 import struct
 from collections import namedtuple
-from matrixes import *
+from obj import Obj
+from mathlib import matrix_multiply
+import mathlib as m
+import numpy as np
+
 V2 = namedtuple('point', ['x','y'])
 V3 = namedtuple('point', ['x','y','z'])
 POINTS = 0
@@ -24,6 +28,19 @@ def dword(d):
 def color(r, g, b):
     return bytes([int(b*255), int(g*255), int(r*255)])
 
+class Model(object):
+    def __init__(self,filename, translate = (0,0,0), scale = (1,1,1), rotate = (0,0,0)):
+        model = Obj(filename)
+
+        self.vertices = model.vertices
+        self.texcoords = model.texcoords
+        self.normals = model.normals
+        self.faces = model.faces
+
+        self.translate = translate
+        self.rotate = rotate
+        self.scale = scale        
+
 class Renderer(object):
     # Constructor
     def __init__(self, width, height):
@@ -32,6 +49,8 @@ class Renderer(object):
         self.glClearColor(0,0,0)
         self.glClear()
         self.glColor(1,1,1)
+
+        self.objects = []
 
         self.vertexShader = None
         self.fragmentShader = None
@@ -141,6 +160,9 @@ class Renderer(object):
                     y -= 1
                 
                 limit += 1
+
+    def glLoadModel(self, filename, translate = (0,0,0), scale = (1,1,1), rotate = (0,0,0)):
+        self.objects.append(Model(filename, translate, scale, rotate))        
         
     # Draw a triangle
     def glTriangle(self, A, B, C, clr = None):
@@ -163,16 +185,48 @@ class Renderer(object):
             [0,0,0,1]
         ]
 
-        self.modelMatrix = multiplyMatrices(translation, scaleMatrix)
+        scaleMatrix = np.array(scaleMatrix)
+        translation = np.array(translation)
+        return  translation @ scaleMatrix
+        #return m.matrix_multiply(scaleMatrix, translation)
 
 
     def glRender(self):
         transformedVerts = []
-        for vert in self.vertexBuffer:
-            if self.vertexShader:
-                transformedVerts.append(self.vertexShader(vertex = vert, modelMatrix = self.modelMatrix))
-            else:
-                transformedVerts.append(vert)
+        for model in self.objects:
+            modelMatrix = self.glModelMatrix(model.translate, model.scale)
+
+            for face in model.faces:
+                vertCount = len(face)
+
+                v0 = model.vertices[face[0][0] - 1]
+                v1 = model.vertices[face[1][0] - 1]
+                v2 = model.vertices[face[2][0] - 1]
+                
+                if vertCount == 4:
+                    v3 = model.vertices[face[3][0] - 1]
+
+                if self.vertexShader:
+                    v0 = self.vertexShader(vertex = v0, modelMatrix = modelMatrix)
+                    v1 = self.vertexShader(vertex = v1, modelMatrix = modelMatrix)
+                    v2 = self.vertexShader(vertex = v2, modelMatrix = modelMatrix)
+                    if vertCount == 4:
+                        v3 = self.vertexShader(v3, modelMatrix = modelMatrix)
+
+                transformedVerts.append(v0)
+                transformedVerts.append(v1)
+                transformedVerts.append(v2)
+
+                if vertCount == 4:
+                    transformedVerts.append(v0)
+                    transformedVerts.append(v2)
+                    transformedVerts.append(v3)
+
+        # for vert in self.vertexBuffer:
+        #     if self.vertexShader:
+        #         transformedVerts.append(self.vertexShader(vertex = vert, modelMatrix = self.modelMatrix))
+        #     else:
+        #         transformedVerts.append(vert)
 
         primitives = self.glPrimitiveAssembly(transformedVerts)
         primitiveColor = self.currColor

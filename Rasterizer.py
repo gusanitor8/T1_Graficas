@@ -2,8 +2,8 @@ from gl import Renderer, V2, V3, color
 import shaders
 import random
 
-width = 512
-height = 512
+width = 1920
+height = 1080
 
 render = Renderer(width, height)
 render.vertexShader = shaders.vertexShader
@@ -74,34 +74,6 @@ def output5():
 
     render.glFinish('output5.bmp')
 
-def triangle():
-    triangle = [
-        V2(100, 100), 
-        V2(450, 275), 
-        V2(250, 500)
-    ]
-    
-    render.glAddVertices(triangle)
-    render.glRender()
-    render.glFinish('triangle.bmp')
-
-def triangles():
-    triangles = [
-        V2(100, 100), 
-        V2(450, 275), 
-        V2(250, 500),
-        V2(50, 90),
-        V2(300, 100),
-        V2(84, 0),
-        V2(500, 150),
-        V2(10, 330),
-        V2(256, 10),
-    ]
-    
-    render.glAddVertices(triangles)
-    render.glRender()
-    render.glFinish('triangles.bmp')
-
 def noTransformations():
     triangle = [
         V3(0, 0, 0),
@@ -114,7 +86,6 @@ def noTransformations():
     render.glRender()
     render.glFinish('noTransformations.bmp')
 
-noTransformations()
 
 def transformations():
     triangle = [
@@ -129,4 +100,18 @@ def transformations():
     render.glRender()
     render.glFinish('transformations.bmp')
 
-transformations()
+def renderObj():
+    inputFile = './models/model.obj'
+    outputFile = './out/renderObj.bmp'
+    translate = (width/ + 100, height/2 + 200, 0)
+    scale = (500, 500, 500)
+
+    render.glLoadModel(
+        inputFile, 
+        translate = translate, 
+        scale = scale)    
+    
+    render.glRender()
+    render.glFinish(outputFile)
+
+renderObj()

@@ -1,2 +1,3 @@
-output.bmp
-__pycache__/*
+out/*
+models/*
+__pycache__/
