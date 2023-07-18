@@ -185,8 +185,8 @@ class Renderer(object):
             [0,0,0,1]
         ]
 
-        scaleMatrix = np.array(scaleMatrix)
-        translation = np.array(translation)
+        scaleMatrix = np.matrix(scaleMatrix)
+        translation = np.matrix(translation)
         return  translation @ scaleMatrix
         #return m.matrix_multiply(scaleMatrix, translation)
 
