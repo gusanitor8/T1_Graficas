@@ -206,17 +206,9 @@ class Renderer(object):
             [0,0,0,1]
         ]
 
-        # xRotationMatrix = np.matrix(xRotationMatrix)
-        # yRotationMatrix = np.matrix(yRotationMatrix)
-        # zRotationMatrix = np.matrix(zRotationMatrix)
-
         rotationMatrix = matrix_multiplication(matrix_multiplication(xRotationMatrix, yRotationMatrix), zRotationMatrix)
-        #rotationMatrix = xRotationMatrix @ yRotationMatrix @ zRotationMatrix
-
-        scaleMatrix = np.matrix(scaleMatrix)
-        translation = np.matrix(translation)
-        return  translation @ rotationMatrix @ scaleMatrix        
-
+        
+        return matrix_multiplication(matrix_multiplication(translation, rotationMatrix), scaleMatrix)
 
     def glRender(self):
         transformedVerts = []

@@ -1,5 +1,4 @@
-from mathlib import matrix_multiply
-import mathlib as m
+from mathlib import matrix_vector_multiplication
 import numpy as np
 
 def vertexShader(vertex, **kwargs):
@@ -19,8 +18,7 @@ def vertexShader(vertex, **kwargs):
     
     #modelMatrix = np.array(modelMatrix)
 
-    vt =  modelMatrix @ vt
-    vt = vt.tolist()[0]
+    vt =  matrix_vector_multiplication(modelMatrix, vt)
 
     vt = [vt[0] / vt[3], 
           vt[1] / vt[3], 
@@ -28,8 +26,7 @@ def vertexShader(vertex, **kwargs):
     ]
 
     return vt
-    # transformedVertex = vertex
-    # return transformedVertex
+
 
 def fragmentShader(**kwargs):
     color = (1, 1, 1)
