@@ -1,9 +1,10 @@
 from gl import Renderer, V2, V3, color
 import shaders
 import random
+from math import pi
 
 width = 1920
-height = 1080
+height = 1920
 
 render = Renderer(width, height)
 render.vertexShader = shaders.vertexShader
@@ -101,15 +102,17 @@ def transformations():
     render.glFinish('transformations.bmp')
 
 def renderObj():
-    inputFile = './models/model.obj'
-    outputFile = './out/renderObj.bmp'
-    translate = (width/ + 100, height/2 + 200, 0)
-    scale = (500, 500, 500)
+    inputFile = './models/skull.obj'
+    outputFile = './out/renderObj2.bmp'
+    translate = (width/2 ,height/4, 50)
+    rotate = (-pi/3, 0, 0)
+    scale = (50, 50, 50)
 
     render.glLoadModel(
         inputFile, 
         translate = translate, 
-        scale = scale)    
+        scale = scale,
+        rotate=rotate)    
     
     render.glRender()
     render.glFinish(outputFile)

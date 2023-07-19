@@ -1,8 +1,8 @@
 import struct
 from collections import namedtuple
 from obj import Obj
-from mathlib import matrix_multiply
-import mathlib as m
+from mathlib import matrix_multiplication
+from math import sin, cos
 import numpy as np
 
 V2 = namedtuple('point', ['x','y'])
@@ -170,7 +170,7 @@ class Renderer(object):
         self.glLine(B, C, clr or self.currColor)
         self.glLine(C, A, clr or self.currColor)
 
-    def glModelMatrix(self, translate = (0,0,0), scale = (1,1,1)):
+    def glModelMatrix(self, translate = (0,0,0), scale = (1,1,1), rotate = (0,0,0)):
         translation = [
             [1,0,0,translate[0]],
             [0,1,0,translate[1]],
@@ -185,16 +185,43 @@ class Renderer(object):
             [0,0,0,1]
         ]
 
+        xRotationMatrix = [
+            [1,0,0,0],
+            [0,cos(rotate[0]),-sin(rotate[0]),0],
+            [0,sin(rotate[0]),cos(rotate[0]),0],
+            [0,0,0,1]
+        ]
+
+        yRotationMatrix = [
+            [cos(rotate[1]),0,sin(rotate[1]),0],
+            [0,1,0,0],
+            [-sin(rotate[1]),0,cos(rotate[1]),0],
+            [0,0,0,1]
+        ]
+
+        zRotationMatrix = [
+            [cos(rotate[2]),-sin(rotate[2]),0,0],
+            [sin(rotate[2]),cos(rotate[2]),0,0],
+            [0,0,1,0],
+            [0,0,0,1]
+        ]
+
+        # xRotationMatrix = np.matrix(xRotationMatrix)
+        # yRotationMatrix = np.matrix(yRotationMatrix)
+        # zRotationMatrix = np.matrix(zRotationMatrix)
+
+        rotationMatrix = matrix_multiplication(matrix_multiplication(xRotationMatrix, yRotationMatrix), zRotationMatrix)
+        #rotationMatrix = xRotationMatrix @ yRotationMatrix @ zRotationMatrix
+
         scaleMatrix = np.matrix(scaleMatrix)
         translation = np.matrix(translation)
-        return  translation @ scaleMatrix
-        #return m.matrix_multiply(scaleMatrix, translation)
+        return  translation @ rotationMatrix @ scaleMatrix        
 
 
     def glRender(self):
         transformedVerts = []
         for model in self.objects:
-            modelMatrix = self.glModelMatrix(model.translate, model.scale)
+            modelMatrix = self.glModelMatrix(model.translate, model.scale, model.rotate)
 
             for face in model.faces:
                 vertCount = len(face)

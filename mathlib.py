@@ -19,3 +19,24 @@ def matrix_multiply(matrix1, matrix2):
                 result[i][j] += matrix1[i][k] * matrix2[k][j]
     
     return result
+
+
+def matrix_multiplication(matrixA, matrixB):
+    rowsA = len(matrixA)
+    columnsA = len(matrixA[0])
+    rowsB = len(matrixB)
+    columnsB = len(matrixB[0])
+
+    if columnsA != rowsB:
+        raise ValueError("The number of columns in matrix1 must match the number of rows in matrix2.")
+    
+    result = [[0 for column in range(columnsB)] for row in range(rowsA)]    
+    
+    for i in range(rowsA):
+        for j in range(columnsB):
+            for k in range(columnsA):
+                result[i][j] += matrixA[i][k] * matrixB[k][j]
+                    
+    return(result)
+        
+
