@@ -266,31 +266,53 @@ class Renderer(object):
                 self.glTriangle(A, B, C, primitiveColor)
 
     def glPointToV2(self, point):
-        return V2(point[0], point[1])
+        return V2(point[0], point[1])    
+
+    def glFillPolygon(self, color = color(1,1,1)):
+        fill = last = current = False
+
+        for x in range(len(self.pixels)):
+            for y in range(len(self.pixels[0])):
+                current = (self.pixels[x][y] == self.currColor) ##Este puede ser curr color o el color del borde
+                if current and (not last):
+                    fill = not fill
+
+                if fill:
+                    self.pixels[x][y] = color
+
+                last = current
+
+            fill = last = current = False
+
+    def glFillPolygon(self,vertices, clr=None):
+        if clr == None:
+            clr = color(1, 1, 1)
+        
+
+        # Function to check if a point is inside the polygon using the ray casting algorithm
+        def is_inside_polygon(x, y):
+            odd_nodes = False
+            j = len(vertices) - 1
+            for i in range(len(vertices)):
+                xi, yi = vertices[i]
+                xj, yj = vertices[j]
+                if yi < y and yj >= y or yj < y and yi >= y:
+                    if xi + (y - yi) / (yj - yi) * (xj - xi) < x:
+                        odd_nodes = not odd_nodes
+                j = i
+            return odd_nodes
+
+        for x in range(len(self.pixels)):
+            for y in range(len(self.pixels[0])):
+                if is_inside_polygon(x, y):
+                    self.pixels[x][y] = clr
 
     def gldrawPolygon(self, points):
         for i in range(len(points)):
             v0 = self.glPointToV2(points[i])
             v1 = self.glPointToV2(points[(i + 1) % len(points)])
             self.glLine(v0, v1)
-
-            
-    def is_point_inside_polygon(x, y, polygon):
-        n = len(polygon)
-        odd_nodes = False
-        j = n - 1
-
-        for i in range(n):
-            xi, yi = polygon[i]
-            xj, yj = polygon[j]
-
-            if (yi < y and yj >= y) or (yj < y and yi >= y):
-                if xi + (y - yi) / (yj - yi) * (xj - xi) < x:
-                    odd_nodes = not odd_nodes
-
-            j = i
-
-        return odd_nodes
+        self.glFillPolygon(vertices=points)
 
     # Export the BMP file
     def glFinish(self, filename):
