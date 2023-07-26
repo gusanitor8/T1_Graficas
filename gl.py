@@ -307,12 +307,12 @@ class Renderer(object):
                 if is_inside_polygon(x, y):
                     self.pixels[x][y] = clr
 
-    def gldrawPolygon(self, points):
+    def gldrawPolygon(self, points, clr=None):
         for i in range(len(points)):
             v0 = self.glPointToV2(points[i])
             v1 = self.glPointToV2(points[(i + 1) % len(points)])
             self.glLine(v0, v1)
-        self.glFillPolygon(vertices=points)
+        self.glFillPolygon(vertices=points, clr=clr)
 
     # Export the BMP file
     def glFinish(self, filename):

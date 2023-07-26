@@ -41,11 +41,12 @@ def polyFill():
     points4 = read(FILENAME4)
     points5 = read(FILENAME5)
 
+    color1 = color(0, 0, 0)
     polyRend.gldrawPolygon(points)
     polyRend.gldrawPolygon(points2)
     polyRend.gldrawPolygon(points3)
     polyRend.gldrawPolygon(points4)
-    polyRend.gldrawPolygon(points5)
+    polyRend.gldrawPolygon(points5, clr= color1)
     polyRend.glFinish("out/polyFill2.bmp")     
     
 
