@@ -1,7 +1,7 @@
 import struct
 from collections import namedtuple
 from obj import Obj
-from mathlib import matrix_multiplication
+from mathlib import matrix_multiplication, barycentricCoords
 from math import sin, cos
 import numpy as np
 
@@ -83,6 +83,8 @@ class Renderer(object):
     # Clear the screen
     def glClear(self):
         self.pixels = [[self.clearColor for y in range(self.height)] for x in range(self.width)]
+
+        self.zbuffer = [[float('inf') for y in range(self.height)] for x in range(self.width)]
         
     # Set the color
     def glColor(self, r, g, b):
@@ -166,9 +168,89 @@ class Renderer(object):
         
     # Draw a triangle
     def glTriangle(self, A, B, C, clr = None):
+        if A[1] < B[1]:
+            A, B = B, A
+        if A[1] < C[1]:
+            A, C = C, A
+        if B[1] < C[1]:
+            B, C = C, B
+
         self.glLine(A, B, clr or self.currColor)
         self.glLine(B, C, clr or self.currColor)
         self.glLine(C, A, clr or self.currColor)
+
+        def flatBottom(vA, vB, vC):
+            try:
+                mBA = (vB[0] - vA[0]) / (vB[1] - vA[1])
+                mCA = (vC[0] - vA[0]) / (vC[1] - vA[1])
+            except:
+                pass
+            else:
+                x0=vB[0]
+                x1=vC[0]
+
+                for y in range(int(vB[1]), int(vA[1])):
+                    self.glLine((x0,y), (x1,y), clr or self.currColor)
+                    x0 += mBA
+                    x1 += mCA
+
+        def flatTop(vA, vB, vC):
+            try:
+                mCA = (vC[0] - vA[0]) / (vC[1] - vA[1])
+                mCB = (vC[0] - vB[0]) / (vC[1] - vB[1])
+            except:
+                pass
+            else:
+                x0=vA[0]
+                x1=vB[0]
+
+                for y in range(int(vA[1]), int(vC[1]), -1):
+                    self.glLine((x0,y), (x1,y), clr or self.currColor)
+                    x0 -= mCA
+                    x1 -= mCB
+
+        if B[1] == C[1]:
+            #parte plana abajo
+            flatBottom(A, B, C)
+            
+        elif A[1] == B[1]:
+            #parte plana arriba
+            flatTop(A, B, C)
+            
+        else:
+            #dibujar ambos casos
+            #vertice D
+            #teorema del intercepto
+            D = (A[0] + ((B[1] - A[1]) / (C[1] - A[1])) * (C[0] - A[0]), B[1])
+            flatBottom(A, B, D)
+            flatTop(B, D, C)
+            
+    def glTriangle_bc(self, A, B, C, clr = None):
+        minX = round(min(A[0],B[0],C[0]))
+        maxX = round(max(A[0],B[0],C[0]))
+        minY = round(min(A[1],B[1],C[1]))
+        maxY = round(max(A[1],B[1],C[1]))
+
+        colorA = (1,0,0)
+        colorB = (0,1,0)
+        colorC = (0,0,1)
+
+        for x in range(minX, maxX + 1):
+            for y in range(minY, maxY + 1):
+                P = (x,y)
+                u,v,w = barycentricCoords(A,B,C,P)
+                if 0 <= u <= 1 and 0 <= v <= 1 and 0 <= w <= 1 and x < len(self.zbuffer) and y < len(self.zbuffer[0]):
+                    z = u * A[2] + v * B[2] + w * C[2]
+
+                    if z < self.zbuffer[x][y]:
+                        self.zbuffer[x][y] = z
+
+                        colorP = color(u * colorA[0] + v * colorB[0] + w * colorC[0],
+                                       u * colorA[1] + v * colorB[1] + w * colorC[1],
+                                       u * colorA[2] + v * colorB[2] + w * colorC[2]) 
+                        
+                        self.glPoint(x,y, colorP)
+                                          
 
     def glModelMatrix(self, translate = (0,0,0), scale = (1,1,1), rotate = (0,0,0)):
         translation = [
@@ -249,21 +331,26 @@ class Renderer(object):
 
         primitives = self.glPrimitiveAssembly(transformedVerts)
         primitiveColor = self.currColor
-        if self.fragmentShader:
-            primitiveColor = self.fragmentShader()
-            primitiveColor = color(
-                primitiveColor[0],
-                primitiveColor[1],
-                primitiveColor[2]
-            )
+        
      
 
         for primitive in primitives:
             if self.primitiveType == TRIANGLES:
+                if self.fragmentShader:
+                    primitiveColor = self.fragmentShader()
+                    primitiveColor = color(
+                        primitiveColor[0],
+                        primitiveColor[1],
+                        primitiveColor[2]
+                    )
+                else:
+                    primitiveColor = self.currColor
+
+
                 A = primitive[0]
                 B = primitive[1]
                 C = primitive[2]
-                self.glTriangle(A, B, C, primitiveColor)
+                self.glTriangle_bc(A, B, C, primitiveColor)
 
     def glPointToV2(self, point):
         return V2(point[0], point[1])    

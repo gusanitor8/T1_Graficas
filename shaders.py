@@ -1,4 +1,5 @@
 from mathlib import matrix_vector_multiplication
+import random
 import numpy as np
 
 def vertexShader(vertex, **kwargs):
@@ -29,5 +30,6 @@ def vertexShader(vertex, **kwargs):
 
 
 def fragmentShader(**kwargs):
-    color = (1, 1, 1)
+    #color = (1, 1, 1)
+    color = (random.random(), random.random(), random.random())
     return color

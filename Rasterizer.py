@@ -11,12 +11,23 @@ render = Renderer(width, height)
 render.vertexShader = shaders.vertexShader
 render.fragmentShader = shaders.fragmentShader
 
+def doTriangle():
+    triangle = [(130,50), (200, 100), (50, 250)]
+    render.glTriangle(triangle[0], triangle[1], triangle[2])
+    render.glFinish('out/triangle.bmp')
+
+def doBcTriangle():
+    triangle = [(130,50), (200, 100), (50, 250)]
+    render.glTriangle_bc(triangle[0], triangle[1], triangle[2])
+    render.glTriangle(triangle[0], triangle[1], triangle[2])
+    render.glFinish('out/triangle.bmp')
+
 def renderObj():
-    inputFile = './models/chava.obj'
+    inputFile = './models/model.obj'
     outputFile = './out/renderOb3.bmp'
-    translate = (width/2 ,0, 50)
-    rotate = (0,pi, 0)
-    scale = (400, 400, 400)
+    translate = (width/2 , height/2, 0)
+    rotate = (0, 0, 0)
+    scale = (200, 200, 200)
 
     render.glLoadModel(
         inputFile, 
@@ -47,7 +58,6 @@ def polyFill():
     polyRend.gldrawPolygon(points3)
     polyRend.gldrawPolygon(points4)
     polyRend.gldrawPolygon(points5, clr= color1)
-    polyRend.glFinish("out/polyFill2.bmp")     
-    
+    polyRend.glFinish("out/polyFill2.bmp")  
 
-polyFill()
+renderObj()
