@@ -49,8 +49,11 @@ def barycentricCoords(A,B,C,P):
 
     areaABC = (B[1] - C[1]) * (A[0] - C[0]) +  (C[0] - B[0]) * (A[1] - C[1])
     
-    u = areaPBC / areaABC
-    v = areaACP / areaABC
-    w = 1 - u - v
+    try:
+        u = areaPBC / areaABC
+        v = areaACP / areaABC
+        w = 1 - u - v
+    except Exception:
+        pass
 
     return u,v,w

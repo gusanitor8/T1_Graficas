@@ -24,5 +24,5 @@ class Obj(object):
             elif prefix == "f":
                 self.faces.append([list(map(int, vert.split("/"))) for vert in value.split(" ")])
 
-        
+
     

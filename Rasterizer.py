@@ -4,8 +4,8 @@ import shaders
 import random
 from math import pi
 
-width = 900
-height = 500
+width = 1000
+height = 1000
 
 render = Renderer(width, height)
 render.vertexShader = shaders.vertexShader
@@ -23,8 +23,9 @@ def doBcTriangle():
     render.glFinish('out/triangle.bmp')
 
 def renderObj():
-    inputFile = './models/model.obj'
+    inputFile = './models/Knife.obj'
     outputFile = './out/renderOb3.bmp'
+    textureFile = './models/Albedo.bmp'
     translate = (width/2 , height/2, 0)
     rotate = (0, 0, 0)
     scale = (200, 200, 200)
@@ -33,7 +34,62 @@ def renderObj():
         inputFile, 
         translate = translate, 
         scale = scale,
-        rotate=rotate)    
+        rotate=rotate,
+        textureName=textureFile)    
+    
+    render.glRender()
+    render.glFinish(outputFile)
+
+def R2Textures():
+    inputFile = './models/WindMill.obj'
+    outputFile = './out/renderOb3.bmp'
+    textureFile = './models/WindMill.bmp'
+
+
+    #first model
+    translate0 = (width*(1/4) , height*(1/2), 0)
+    rotate0 = (0, pi/4, 0)
+    scale = (30, 30, 30)
+
+    #second model
+    translate1 = (width*(3/4) , height*(1/2), 0)
+    rotate1 = (0, 0, 0)    
+
+    #third model
+    translate2 = (width*(1/4) , height*(1/6), 0)
+    rotate2 = (0, pi, 0)    
+
+    #fourth model
+    translate3 = (width*(3/4) , height*(1/6), 0)
+    rotate3 = (-pi/2.4, 0, 0)
+
+    render.glLoadModel(
+        inputFile, 
+        translate = translate0, 
+        scale = scale,
+        rotate=rotate0,
+        textureName=textureFile)    
+    
+    render.glLoadModel(
+        inputFile, 
+        translate = translate1, 
+        scale = scale,
+        rotate=rotate1,
+        textureName=textureFile)  
+    
+    render.glLoadModel(
+        inputFile, 
+        translate = translate2, 
+        scale = scale,
+        rotate=rotate2,
+        textureName=textureFile)  
+    
+    render.glLoadModel(
+        inputFile, 
+        translate = translate3, 
+        scale = scale,
+        rotate=rotate3,
+        textureName=textureFile)  
     
     render.glRender()
     render.glFinish(outputFile)
@@ -60,4 +116,4 @@ def polyFill():
     polyRend.gldrawPolygon(points5, clr= color1)
     polyRend.glFinish("out/polyFill2.bmp")  
 
-renderObj()
+R2Textures()
