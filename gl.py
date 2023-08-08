@@ -1,6 +1,6 @@
 import struct
 from collections import namedtuple
-from obj import Obj
+from Obj import Obj
 from mathlib import matrix_multiplication, barycentricCoords
 from math import sin, cos
 import numpy as np
