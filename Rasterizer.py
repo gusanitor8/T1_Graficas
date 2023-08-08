@@ -1,120 +1,119 @@
 from gl import Renderer, V2, V3, color
+from Reader import read
 import shaders
 import random
 from math import pi
 
-width = 1920
-height = 1920
+width = 1000
+height = 1000
 
 render = Renderer(width, height)
 render.vertexShader = shaders.vertexShader
 render.fragmentShader = shaders.fragmentShader
 
-def output1():
-    for x in range(0, width, 10):
-        render.glLine(V2(0,0), V2(x,height-1))
-    
-    render.glFinish('output1.bmp')
+def doTriangle():
+    triangle = [(130,50), (200, 100), (50, 250)]
+    render.glTriangle(triangle[0], triangle[1], triangle[2])
+    render.glFinish('out/triangle.bmp')
 
-def output2():
-    for x in range(0, width, 10):
-        render.glLine(V2(0,0), V2(x,height-1))
-
-    for x in range(0, width, 10):
-        render.glLine(V2(0, height - 1), V2(x, 0))
-
-    render.glFinish('output2.bmp')
-
-def output3():
-    for x in range(0, width, 10):
-        render.glLine(V2(0,0), V2(x,height-1))
-
-    for x in range(0, width, 10):
-        render.glLine(V2(0, height - 1), V2(x, 0))
-
-    for y in range(0, height, 10):
-        render.glLine(V2(0,0), V2(width-1,y))
-
-    for y in range(0, height, 10):
-        render.glLine(V2(0, width - 1), V2(height-1, y))
-
-    render.glFinish('output3.bmp')
-
-# Noise
-def output4():
-    for x in range(width):
-        for y in range(height):
-            if random.random() > 0.5:
-                render.glPoint(x, y, color(random.random(), random.random(), random.random()))
-
-    render.glFinish('output4.bmp')
-
-# Starry night
-def output5():
-    for x in range(width):
-        for y in range(height):
-            if random.random() > 0.995:
-                size = random.randrange(0, 3)
-                brightness = random.random() / 2 + 0.5
-                starColor = color(brightness, brightness, brightness)
-
-                if size == 0:
-                    render.glPoint(x, y, starColor)
-                elif size == 1:
-                    render.glPoint(x, y, starColor)
-                    render.glPoint(x + 1, y, starColor)
-                    render.glPoint(x, y + 1, starColor)
-                    render.glPoint(x + 1, y + 1, starColor)
-                elif size == 2:
-                    render.glPoint(x, y, starColor)
-                    render.glPoint(x, y + 1, starColor)
-                    render.glPoint(x + 1, y, starColor)
-                    render.glPoint(x, y - 1, starColor)
-                    render.glPoint(x - 1, y, starColor)
-
-
-    render.glFinish('output5.bmp')
-
-def noTransformations():
-    triangle = [
-        V3(0, 0, 0),
-        V3(100, 150, 0),
-        V3(200, 0, 0)
-    ]
-    
-    render.glAddVertices(triangle)
-    render.glModelMatrix()
-    render.glRender()
-    render.glFinish('noTransformations.bmp')
-
-
-def transformations():
-    triangle = [
-        V3(0, 0, 0),
-        V3(100, 150, 0),
-        V3(200, 0, 0)
-    ]
-    
-    render.glAddVertices(triangle)
-    # render.glModelMatrix()
-    render.glModelMatrix(translate=(width/2, height/2, 0), scale=(1, 1, 1))
-    render.glRender()
-    render.glFinish('transformations.bmp')
+def doBcTriangle():
+    triangle = [(130,50), (200, 100), (50, 250)]
+    render.glTriangle_bc(triangle[0], triangle[1], triangle[2])
+    render.glTriangle(triangle[0], triangle[1], triangle[2])
+    render.glFinish('out/triangle.bmp')
 
 def renderObj():
-    inputFile = './models/skull.obj'
-    outputFile = './out/renderObj2.bmp'
-    translate = (width/2 ,height/4, 50)
-    rotate = (-pi/3, 0, 0)
-    scale = (50, 50, 50)
+    inputFile = './models/Knife.obj'
+    outputFile = './out/renderOb3.bmp'
+    textureFile = './models/Albedo.bmp'
+    translate = (width/2 , height/2, 0)
+    rotate = (0, 0, 0)
+    scale = (200, 200, 200)
 
     render.glLoadModel(
         inputFile, 
         translate = translate, 
         scale = scale,
-        rotate=rotate)    
+        rotate=rotate,
+        textureName=textureFile)    
     
     render.glRender()
     render.glFinish(outputFile)
 
-renderObj()
+def R2Textures():
+    inputFile = './models/WindMill.obj'
+    outputFile = './out/renderOb3.bmp'
+    textureFile = './models/WindMill.bmp'
+
+
+    #first model
+    translate0 = (width*(1/4) , height*(1/2), 0)
+    rotate0 = (0, pi/4, 0)
+    scale = (30, 30, 30)
+
+    #second model
+    translate1 = (width*(3/4) , height*(1/2), 0)
+    rotate1 = (0, 0, 0)    
+
+    #third model
+    translate2 = (width*(1/4) , height*(1/6), 0)
+    rotate2 = (0, pi, 0)    
+
+    #fourth model
+    translate3 = (width*(3/4) , height*(1/6), 0)
+    rotate3 = (-pi/2.4, 0, 0)
+
+    render.glLoadModel(
+        inputFile, 
+        translate = translate0, 
+        scale = scale,
+        rotate=rotate0,
+        textureName=textureFile)    
+    
+    render.glLoadModel(
+        inputFile, 
+        translate = translate1, 
+        scale = scale,
+        rotate=rotate1,
+        textureName=textureFile)  
+    
+    render.glLoadModel(
+        inputFile, 
+        translate = translate2, 
+        scale = scale,
+        rotate=rotate2,
+        textureName=textureFile)  
+    
+    render.glLoadModel(
+        inputFile, 
+        translate = translate3, 
+        scale = scale,
+        rotate=rotate3,
+        textureName=textureFile)  
+    
+    render.glRender()
+    render.glFinish(outputFile)
+
+def polyFill():
+    FILENAME = "./models/face.txt"
+    FILENAME2 = "./models/face2.txt"
+    FILENAME3 = "./models/face3.txt"
+    FILENAME4 = "./models/face4.txt"
+    FILENAME5 = "./models/face5.txt"
+
+    polyRend = Renderer(width, height)
+    points = read(FILENAME)
+    points2 = read(FILENAME2)
+    points3 = read(FILENAME3)
+    points4 = read(FILENAME4)
+    points5 = read(FILENAME5)
+
+    color1 = color(0, 0, 0)
+    polyRend.gldrawPolygon(points)
+    polyRend.gldrawPolygon(points2)
+    polyRend.gldrawPolygon(points3)
+    polyRend.gldrawPolygon(points4)
+    polyRend.gldrawPolygon(points5, clr= color1)
+    polyRend.glFinish("out/polyFill2.bmp")  
+
+R2Textures()

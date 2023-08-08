@@ -33,9 +33,27 @@ def matrix_vector_multiplication(matrix, vector):
         
     return(result)
 
-matrix = [[2, 3, 1],
- [1, 0, 2]]
+def barycentricCoords(A,B,C,P):
+    # areaPBC = abs((P[0] * B[1] + B[0] * C[1] + C[0] * P[1]) - 
+    #               (P[1] * B[0] + B[1] * C[0] + C[1] * P[0]))
+    
+    # areaACP = abs((A[0] * C[1] + C[0] * P[1] + P[0] * A[1]) - 
+    #               (A[1] * C[0] + C[1] * P[0] + P[1] * A[0]))
+     
+    # areaABC = abs((A[0] * B[1] + B[0] * C[1] + C[0] * A[1]) - 
+    #               (A[1] * B[0] + B[1] * C[0] + C[1] * A[0]))
 
-vector = [4, 5, 6]
+    areaPBC = (B[1] - C[1]) * (P[0] - C[0]) + (C[0] - B[0]) * (P[1] - C[1])
 
-matrix_vector_multiplication(matrix, vector)
+    areaACP = (C[1] - A[1]) * (P[0] - C[0]) + (A[0] - C[0]) * (P[1] - C[1])
+
+    areaABC = (B[1] - C[1]) * (A[0] - C[0]) +  (C[0] - B[0]) * (A[1] - C[1])
+    
+    try:
+        u = areaPBC / areaABC
+        v = areaACP / areaABC
+        w = 1 - u - v
+    except Exception:
+        pass
+
+    return u,v,w
