@@ -1,9 +1,8 @@
 import struct
 from collections import namedtuple
 from Obj import Obj
-from mathlib import matrix_multiplication, barycentricCoords
-from math import sin, cos
-import numpy as np
+from mathlib import matrix_multiplication, barycentricCoords, inverseMatrix, PI
+from math import sin, cos, tan
 from texture import Texture
 
 V2 = namedtuple('point', ['x','y'])
@@ -62,6 +61,10 @@ class Renderer(object):
         self.vertexBuffer = []
 
         self.activeTexture = None
+        
+        self.glViewPort(0,0,width,height)
+        self.glCamMatrix()
+        self.glProjectionMatrix()
 
     def glAddVertices(self, vertices):
         for vertex in vertices:
@@ -274,9 +277,35 @@ class Renderer(object):
                         # colorP = color(u * colorA[0] + v * colorB[0] + w * colorC[0],
                         #                u * colorA[1] + v * colorB[1] + w * colorC[1],
                         #                u * colorA[2] + v * colorB[2] + w * colorC[2]) 
-                        
-                        
-                                          
+
+    def glViewPort(self, x, y, width, height):
+        self.vpX = x
+        self.vpY = y
+        self.vpWidth = width
+        self.vpHeight = height
+
+        self.vpMatrix = [[width/2,0,0, x + width/2],
+                         [0,height/2,0,y + height/2],
+                         [0,0,0.5,0.5],
+                         [0,0,0,1]]
+        
+
+
+    def glCamMatrix(self, translate = (0,0,0), rotate = (0,0,0)):       
+        self.camMatrix = self.glModelMatrix(translate = translate, rotate = rotate)
+        
+        self.viewMatrix = inverseMatrix(self.camMatrix)
+    
+    def glProjectionMatrix(self, n = 0.1, f = 1000, fov = 60):
+        aspectRatio = self.vpWidth / self.vpHeight
+        t = tan((fov * PI / 180) / 2) * n
+        r = t * aspectRatio
+
+        self.projectionMatrix = [[n/r,0,0,0],
+                                 [0,n/t,0,0],
+                                 [0,0,-(f+n)/(f-n),-2*f*n/(f-n)],
+                                 [0,0,-1,0]]
+
 
     def glModelMatrix(self, translate = (0,0,0), scale = (1,1,1), rotate = (0,0,0)):
         translation = [
@@ -338,11 +367,29 @@ class Renderer(object):
                     v3 = model.vertices[face[3][0] - 1]
 
                 if self.vertexShader:
-                    v0 = self.vertexShader(vertex = v0, modelMatrix = modelMatrix)
-                    v1 = self.vertexShader(vertex = v1, modelMatrix = modelMatrix)
-                    v2 = self.vertexShader(vertex = v2, modelMatrix = modelMatrix)
+                    v0 = self.vertexShader(vertex = v0,
+                                            modelMatrix = modelMatrix,
+                                            viewMatrix = self.viewMatrix,
+                                            projectionMatrix = self.projectionMatrix,
+                                            vpMatrix = self.vpMatrix)
+                    
+                    v1 = self.vertexShader(vertex = v1,
+                                            modelMatrix = modelMatrix,
+                                            viewMatrix = self.viewMatrix,
+                                            projectionMatrix = self.projectionMatrix,
+                                            vpMatrix = self.vpMatrix)
+                    
+                    v2 = self.vertexShader(vertex = v2,
+                                            modelMatrix = modelMatrix,
+                                            viewMatrix = self.viewMatrix,
+                                            projectionMatrix = self.projectionMatrix,
+                                            vpMatrix = self.vpMatrix)
                     if vertCount == 4:
-                        v3 = self.vertexShader(v3, modelMatrix = modelMatrix)
+                        v3 = self.vertexShader(vertex = v3,
+                                            modelMatrix = modelMatrix,
+                                            viewMatrix = self.viewMatrix,
+                                            projectionMatrix = self.projectionMatrix,
+                                            vpMatrix = self.vpMatrix)
 
                 transformedVerts.append(v0)
                 transformedVerts.append(v1)
