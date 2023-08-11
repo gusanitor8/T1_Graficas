@@ -8,10 +8,10 @@ height = 1000
 
 render = Renderer(width, height)
 render.vertexShader = shaders.vertexShader
-render.fragmentShader = shaders.flatShader
+render.fragmentShader = shaders.colorNoiseShader
 
 
-def R3Cameras():
+def shaderLab():
     filename = "./models/WindMill.obj"
     texturefile = "./models/WindMill.bmp"
     
@@ -20,11 +20,11 @@ def R3Cameras():
         filename = filename,
         textureName = texturefile,
         translate = (0, -5, -15),
-        rotate=(0, 0, -pi/4),
+        rotate=(0, pi/6, -pi/4),
         scale=(1, 1, 1)
     )
 
     render.glRender()
-    render.glFinish("out/R3Cameras.bmp")
+    render.glFinish("out/shaderLab.bmp")
     
-R3Cameras()
+shaderLab()

@@ -62,6 +62,37 @@ def flatShader(**kwargs):
         return (0,0,0)
 
 
+def colorNoiseShader(**kwargs):
+    dLight = kwargs['dLight']
+    normal = kwargs['triangleNormal']
+    texture = kwargs['texture']
+    texCoords = kwargs['texcoords']
+
+    b = 1.0 
+    g = 1.0 
+    r = 1.0
+
+    if texture != None:
+        textureColor = texture.getColor(texCoords[0], texCoords[1])
+        b *= random.randint(0,255)/255
+        g *= random.randint(0,255)/255
+        r *= random.randint(0,255)/255
+
+
+    dLight = np.array(dLight)
+    intensity = np.dot(normal, -dLight)
+
+    b *= intensity
+    g *= intensity
+    r *= intensity
+    
+
+    if intensity > 0:
+        return r,g,b
+    else:
+        return (0,0,0)
+    
+
 def fragmentShader(**kwargs):
     texcoords = kwargs["texcoords"]
     texture = kwargs["texture"]
