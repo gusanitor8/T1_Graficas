@@ -3,6 +3,7 @@ from collections import namedtuple
 from Obj import Obj
 from mathlib import matrix_multiplication, barycentricCoords, inverseMatrix, PI
 from math import sin, cos, tan
+import numpy as np
 from texture import Texture
 
 V2 = namedtuple('point', ['x','y'])
@@ -66,11 +67,13 @@ class Renderer(object):
         self.glCamMatrix()
         self.glProjectionMatrix()
 
+        self.directionalLight = (1,0,0)
+
     def glAddVertices(self, vertices):
         for vertex in vertices:
             self.vertexBuffer.append(vertex)
        
-    def glPrimitiveAssembly(self, transformedVertices, tTexCoords):
+    def glPrimitiveAssembly(self, transformedVertices, tTexCoords, normals):
         # Assembly the vertices into points, lines or triangles
         primitives = []
 
@@ -85,7 +88,11 @@ class Renderer(object):
                     #texCoords
                     tTexCoords[i],
                     tTexCoords[i + 1],
-                    tTexCoords[i + 2]
+                    tTexCoords[i + 2],
+
+                    #normals
+                    normals[int(i/3)]
+
                 ]
                 primitives.append(triangle)
     
@@ -243,7 +250,7 @@ class Renderer(object):
             flatBottom(A, B, D)
             flatTop(B, D, C)
             
-    def glTriangle_bc(self, A, B, C, vtA, vtB, vtC, clr = None):
+    def glTriangle_bc(self, A, B, C, vtA, vtB, vtC, triangleNormal, clr = None):
         minX = round(min(A[0],B[0],C[0]))
         maxX = round(max(A[0],B[0],C[0]))
         minY = round(min(A[1],B[1],C[1]))
@@ -267,8 +274,14 @@ class Renderer(object):
                                u * vtA[1] + v * vtB[1] + w * vtC[1])
 
                         if self.fragmentShader != None:
+                            
+
                             colorP = self.fragmentShader(texcoords = uvs,
-                                                         texture = self.activeTexture) 
+                                                         texture = self.activeTexture,
+                                                         triangleNormal = triangleNormal,
+                                                         dLight = self.directionalLight) 
+                            
+
                             self.glPoint(x,y, color(colorP[0], colorP[1], colorP[2]))
                         else:
                             colorP = self.currColor
@@ -350,6 +363,7 @@ class Renderer(object):
     def glRender(self):
         transformedVerts = []
         texcoords = []
+        normals = []
 
         for model in self.objects:
 
@@ -362,6 +376,16 @@ class Renderer(object):
                 v0 = model.vertices[face[0][0] - 1]
                 v1 = model.vertices[face[1][0] - 1]
                 v2 = model.vertices[face[2][0] - 1]
+                if vertCount == 4:
+                    v3 = model.vertices[face[3][0] - 1]
+
+                triangleNormal = np.cross(np.subtract(v1,v0), np.subtract(v2,v0))
+                triangleNormal = triangleNormal / np.linalg.norm(triangleNormal)
+                normals.append(triangleNormal)
+                if vertCount == 4:
+                    triangleNormal1 = np.cross(np.subtract(v2,v0), np.subtract(v3,v0))
+                    triangleNormal1 = triangleNormal1 / np.linalg.norm(triangleNormal1)
+                    normals.append(triangleNormal1)
                 
                 if vertCount == 4:
                     v3 = model.vertices[face[3][0] - 1]
@@ -422,7 +446,7 @@ class Renderer(object):
         #     else:
         #         transformedVerts.append(vert)
 
-        primitives = self.glPrimitiveAssembly(transformedVerts, texcoords)
+        primitives = self.glPrimitiveAssembly(transformedVerts, texcoords, normals)
         primitiveColor = self.currColor
         
 
@@ -446,8 +470,9 @@ class Renderer(object):
                 vtA = primitive[3]
                 vtB = primitive[4]
                 vtC = primitive [5]
+                normal = primitive[6]
 
-                self.glTriangle_bc(A, B, C, vtA, vtB, vtC, primitiveColor)
+                self.glTriangle_bc(A, B, C, vtA, vtB, vtC, normal, primitiveColor)
 
     def glPointToV2(self, point):
         return V2(point[0], point[1])    

@@ -1,5 +1,6 @@
 from mathlib import matrix_vector_multiplication, matrix_multiplication
 import random
+import numpy as np
 
 def vertexShader(vertex, **kwargs):
     
@@ -29,6 +30,36 @@ def vertexShader(vertex, **kwargs):
     ]
 
     return vt
+
+def flatShader(**kwargs):
+    dLight = kwargs['dLight']
+    normal = kwargs['triangleNormal']
+    texture = kwargs['texture']
+    texCoords = kwargs['texcoords']
+
+    b = 1.0 
+    g = 1.0 
+    r = 1.0
+
+    if texture != None:
+        textureColor = texture.getColor(texCoords[0], texCoords[1])
+        b *= textureColor[2]
+        g *= textureColor[1] 
+        r *= textureColor[0]
+
+
+    dLight = np.array(dLight)
+    intensity = np.dot(normal, -dLight)
+
+    b *= intensity
+    g *= intensity
+    r *= intensity
+    
+
+    if intensity > 0:
+        return r,g,b
+    else:
+        return (0,0,0)
 
 
 def fragmentShader(**kwargs):

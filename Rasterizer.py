@@ -8,7 +8,7 @@ height = 1000
 
 render = Renderer(width, height)
 render.vertexShader = shaders.vertexShader
-render.fragmentShader = shaders.fragmentShader
+render.fragmentShader = shaders.flatShader
 
 
 def R3Cameras():
