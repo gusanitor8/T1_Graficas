@@ -267,29 +267,31 @@ class Renderer(object):
                 if 0 <= u <= 1 and 0 <= v <= 1 and 0 <= w <= 1 and x < len(self.zbuffer) and y < len(self.zbuffer[0]):
                     z = u * A[2] + v * B[2] + w * C[2]
 
-                    if z < self.zbuffer[x][y]:
-                        self.zbuffer[x][y] = z
 
-                        uvs = (u * vtA[0] + v * vtB[0] + w * vtC[0],
-                               u * vtA[1] + v * vtB[1] + w * vtC[1])
+                    if len(self.zbuffer) > x and x >= 0 and len(self.zbuffer[0]) > y and y >= 0:
+                        if z < self.zbuffer[x][y]:
+                            self.zbuffer[x][y] = z
 
-                        if self.fragmentShader != None:
-                            
+                            uvs = (u * vtA[0] + v * vtB[0] + w * vtC[0],
+                                u * vtA[1] + v * vtB[1] + w * vtC[1])
 
-                            colorP = self.fragmentShader(texcoords = uvs,
-                                                         texture = self.activeTexture,
-                                                         triangleNormal = triangleNormal,
-                                                         dLight = self.directionalLight) 
-                            
+                            if self.fragmentShader != None:
+                                
 
-                            self.glPoint(x,y, color(colorP[0], colorP[1], colorP[2]))
-                        else:
-                            colorP = self.currColor
-                            self.glPoint(x,y, colorP)
+                                colorP = self.fragmentShader(texcoords = uvs,
+                                                            texture = self.activeTexture,
+                                                            triangleNormal = triangleNormal,
+                                                            dLight = self.directionalLight) 
+                                
 
-                        # colorP = color(u * colorA[0] + v * colorB[0] + w * colorC[0],
-                        #                u * colorA[1] + v * colorB[1] + w * colorC[1],
-                        #                u * colorA[2] + v * colorB[2] + w * colorC[2]) 
+                                self.glPoint(x,y, color(colorP[0], colorP[1], colorP[2]))
+                            else:
+                                colorP = self.currColor
+                                self.glPoint(x,y, colorP)
+
+                            # colorP = color(u * colorA[0] + v * colorB[0] + w * colorC[0],
+                            #                u * colorA[1] + v * colorB[1] + w * colorC[1],
+                            #                u * colorA[2] + v * colorB[2] + w * colorC[2]) 
 
     def glViewPort(self, x, y, width, height):
         self.vpX = x
@@ -452,15 +454,6 @@ class Renderer(object):
 
         for primitive in primitives:
             if self.primitiveType == TRIANGLES:
-                # if self.fragmentShader:
-                #     primitiveColor = self.fragmentShader()
-                #     primitiveColor = color(
-                #         primitiveColor[0],
-                #         primitiveColor[1],
-                #         primitiveColor[2]
-                #     )
-                # else:
-                #     primitiveColor = self.currColor
                 primitiveColor = self.currColor
 
 

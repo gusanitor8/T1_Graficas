@@ -12,19 +12,19 @@ render.fragmentShader = shaders.colorNoiseShader
 
 
 def shaderLab():
-    filename = "./models/WindMill.obj"
-    texturefile = "./models/WindMill.bmp"
+    filename = "./models/Skull.obj"
+    texturefile = "./models/Skull.bmp"
     
 
     render.glLoadModel(
         filename = filename,
         textureName = texturefile,
-        translate = (0, -5, -15),
-        rotate=(0, pi/6, -pi/4),
-        scale=(1, 1, 1)
+        translate = (0, -3, -15),
+        rotate=(pi/2, pi, pi),
+        scale=(0.3, 0.3, 0.3)
     )
 
     render.glRender()
-    render.glFinish("out/shaderLab.bmp")
+    render.glFinish("out/shaderLab3.bmp")
     
 shaderLab()

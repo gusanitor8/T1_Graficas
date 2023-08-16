@@ -65,15 +65,13 @@ def flatShader(**kwargs):
 def colorNoiseShader(**kwargs):
     dLight = kwargs['dLight']
     normal = kwargs['triangleNormal']
-    texture = kwargs['texture']
-    texCoords = kwargs['texcoords']
+    texture = kwargs['texture']    
 
     b = 1.0 
     g = 1.0 
     r = 1.0
 
-    if texture != None:
-        textureColor = texture.getColor(texCoords[0], texCoords[1])
+    if texture != None:        
         b *= random.randint(0,255)/255
         g *= random.randint(0,255)/255
         r *= random.randint(0,255)/255
@@ -92,6 +90,59 @@ def colorNoiseShader(**kwargs):
     else:
         return (0,0,0)
     
+def invertColorShader(**kwargs):
+    dLight = kwargs['dLight']
+    normal = kwargs['triangleNormal']
+    texture = kwargs['texture']
+    texCoords = kwargs['texcoords']
+
+    b = 1.0 
+    g = 1.0 
+    r = 1.0
+
+    if texture != None:
+        textureColor = texture.getColor(texCoords[0], texCoords[1])
+        b *= textureColor[2]
+        g *= textureColor[1] 
+        r *= textureColor[0]
+
+        b =  1 - b
+        g =  1 - g
+        r =  1 - r
+
+
+    dLight = np.array(dLight)
+    intensity = np.dot(normal, -dLight)
+
+    b *= intensity
+    g *= intensity
+    r *= intensity
+    
+
+    if intensity > 0:
+        return r,g,b
+    else:
+        return (0,0,0)
+    
+
+def gradientShader(**kwargs):
+    dLight = kwargs['dLight']
+    normal = kwargs['triangleNormal']
+
+    c1 = (250, 175, 0)
+    c2 = (0, 0, 250)    
+
+    dLight = np.array(dLight)
+    intensity = np.dot(normal, -dLight)
+
+    b = ((c1[2] * intensity + c2[2] * (1 - intensity)))/255
+    g = ((c1[1] * intensity + c2[1] * (1 - intensity)))/255
+    r = ((c1[0] * intensity + c2[0] * (1 - intensity)))/255    
+
+    if intensity > 0:
+        return r,g,b
+    else:
+        return (0,0,0.98)
 
 def fragmentShader(**kwargs):
     texcoords = kwargs["texcoords"]
@@ -100,6 +151,6 @@ def fragmentShader(**kwargs):
     if texture != None:
         color = texture.getColor(texcoords[0], texcoords[1])
     else:
-        color = (1,1,1)
+        color = (0, 0, 250)  
     
     return color
