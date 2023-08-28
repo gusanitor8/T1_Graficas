@@ -1,5 +1,7 @@
 PI = 3.141592653589
 
+def dot_product(vector1, vector2):
+    return sum(v1 * v2 for v1, v2 in zip(vector1, vector2))
 
 def matrix_multiplication(matrixA, matrixB):
     rowsA = len(matrixA)

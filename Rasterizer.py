@@ -20,7 +20,7 @@ def project():
     filename = "./models/toro/toro.obj"
     texturefile = "./models/toro/toro.bmp"    
     
-    render.fragmentShader = shaders.flatShader
+    render.fragmentShader = shaders.colorNoiseShader
     render.glLoadModel(
         filename = filename,
         textureName = texturefile,
@@ -34,7 +34,7 @@ def project():
     filename = "./models/pato/pato.obj"
     texturefile = "./models/pato/pato.bmp"    
 
-    render.fragmentShader = shaders.flatShader
+    render.fragmentShader = shaders.invertColorShader
     render.glLoadModel(
         filename = filename,
         textureName = texturefile,
@@ -48,7 +48,7 @@ def project():
     filename = "./models/cat/cat.obj"
     texturefile = "./models/cat/cat.bmp"    
 
-    render.fragmentShader = shaders.flatShader
+    render.fragmentShader = shaders.toonShader
     render.glLoadModel(
         filename = filename,
         textureName = texturefile,
@@ -62,7 +62,7 @@ def project():
     filename = "./models/WindMill/WindMill.obj"
     texturefile = "./models/WindMill/WindMill.bmp"    
 
-    render.fragmentShader = shaders.flatShader
+    render.fragmentShader = shaders.gradientShader
     render.glLoadModel(
         filename = filename,
         textureName = texturefile,
@@ -73,6 +73,6 @@ def project():
     render.glRender()
 
     
-    render.glFinish("out/shaderLab3.bmp")
+    render.glFinish("out/proyecto.bmp")
     
 project()

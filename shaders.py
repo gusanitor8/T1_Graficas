@@ -1,4 +1,4 @@
-from mathlib import matrix_vector_multiplication, matrix_multiplication
+from mathlib import matrix_vector_multiplication, matrix_multiplication, dot_product
 import random
 import numpy as np
 
@@ -30,6 +30,39 @@ def vertexShader(vertex, **kwargs):
     ]
 
     return vt
+
+
+def toonShader(**kwargs):
+    dLight = kwargs['dLight']
+    normal = kwargs['triangleNormal']
+    texture = kwargs['texture']
+    texCoords = kwargs['texcoords']
+
+    # Calculate intensity based on the dot product of light direction and normal
+    intensity = dot_product(normal, [-d for d in dLight])
+    
+    # Apply discrete shading levels for the toon effect
+    if intensity > 0.8:
+        shading_level = 1.0
+    elif intensity > 0.4:
+        shading_level = 0.6
+    else:
+        shading_level = 0.2
+    
+    # Apply shading level to each color channel
+    b = shading_level
+    g = shading_level
+    r = shading_level
+
+    # Apply texture if available
+    if texture is not None:
+        textureColor = texture.getColor(texCoords[0], texCoords[1])
+        b *= textureColor[2]
+        g *= textureColor[1]
+        r *= textureColor[0]
+
+    return r, g, b
+
 
 def flatShader(**kwargs):
     dLight = kwargs['dLight']
