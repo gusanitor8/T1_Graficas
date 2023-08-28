@@ -53,6 +53,7 @@ class Renderer(object):
         self.glClearColor(0,0,0)
         self.glClear()
         self.glColor(1,1,1)
+        self.background = None
 
         self.objects = []
 
@@ -67,7 +68,24 @@ class Renderer(object):
         self.glCamMatrix()
         self.glProjectionMatrix()
 
-        self.directionalLight = (1,0,0)
+        self.directionalLight = (-1,0,0)
+
+    def glBackgroundTexture(self, filename):
+        self.background = Texture(filename=filename)
+        
+    def glClearBackground(self):
+        self.glClear()
+        
+        if self.background:
+            #para cada pixel en el viewport
+            for x in range(self.vpX, self.vpX + self.vpWidth + 1):
+                for y in range(self.vpY, self.vpY + self.vpHeight + 1):
+                    u = (x - self.vpX)/ self.vpWidth 
+                    v = (y - self.vpY)/ self.vpHeight
+                    texColor = self.background.getColor(u,v)
+
+                    if texColor:
+                        self.glPoint(x,y,color(texColor[0], texColor[1], texColor[2]))        
 
     def glAddVertices(self, vertices):
         for vertex in vertices:
@@ -442,11 +460,6 @@ class Renderer(object):
                     texcoords.append(vt2)
                     texcoords.append(vt3)
 
-        # for vert in self.vertexBuffer:
-        #     if self.vertexShader:
-        #         transformedVerts.append(self.vertexShader(vertex = vert, modelMatrix = self.modelMatrix))
-        #     else:
-        #         transformedVerts.append(vert)
 
         primitives = self.glPrimitiveAssembly(transformedVerts, texcoords, normals)
         primitiveColor = self.currColor

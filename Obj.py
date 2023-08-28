@@ -1,4 +1,4 @@
-class Obj(object):
+class Obj:
     def __init__(self, filename):
         with open(filename) as f:
             self.lines = f.read().splitlines()
